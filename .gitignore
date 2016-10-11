@@ -1,0 +1,8 @@
+# Based upon reccomendations from http://www.keil.com/appnotes/files/apnt_279.pdf
+
+# Project screen layout
+*.uvguix.*
+
+# Folders
+src/Listings
+src/Objects
