@@ -4,3 +4,5 @@
 void uartSetup(int baud);
 
 void uart_putChar(char c);
+
+void uart_puts(const char *str);

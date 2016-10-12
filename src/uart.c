@@ -30,8 +30,12 @@ void uartSetup(int baud)
 	
 	//Divisor = (module_clock)/(baud_rate * (OSR+1))
 	//From reference manual p.762
+	//However this gives wrong result!
+	//Example code uses formula:
+	//Divisor = (module_clock)/(baud_rate * (OSR))
+	//This works...
 	//Default OSR (Oversampling rate) is 16
-	sbr = (SystemCoreClock/(baud * 17));
+	sbr = (SystemCoreClock/(baud * 16));
 	
 	// Setup UART Peripheral
 	// Lower nibble of BDH is upper 4 bits of BMD
@@ -54,5 +58,16 @@ void uart_putChar(char c)
 	
 	//Put data into UART data register for transmission
 	UART0->D = (uint8_t) c;
+	
+}
+
+void uart_puts(const char *str)
+{
+	while(*str)
+	{
+		uart_putChar(*str);
+		
+		str++;
+	}
 	
 }

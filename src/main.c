@@ -21,7 +21,7 @@ int main(void)
 {
 	//Setup debug LED and UART
 	initLED();
-	uartSetup(9600);
+	uartSetup(115200);
 	
 	//Blink an LED as a heartbeat
 	xTaskCreate(blinkLED, (const char *)"Blink LED", configMINIMAL_STACK_SIZE, (void *)NULL, tskIDLE_PRIORITY, NULL);
@@ -46,7 +46,7 @@ void blinkLED(void *pvParameters)
 	while(1)
 	{
 		PTD->PTOR = (1u<<5);
-		uart_putChar('a');
+		uart_puts("Hello world\n");
 		vTaskDelay(500/portTICK_RATE_MS);
 	}
 }

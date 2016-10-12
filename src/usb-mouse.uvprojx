@@ -453,7 +453,7 @@
       </component>
     </components>
     <files>
-      <file attr="config" category="source" condition="Compiler ARMCC" name="Device\Source\ARM\startup_MKL46Z4.s" version="0.0.0">
+      <file attr="config" category="source" condition="Compiler ARMCC" name="Device\Source\ARM\startup_MKL46Z4.s" version="1.0.0">
         <instance index="0">RTE\Device\MKL46Z256xxx4\startup_MKL46Z4.s</instance>
         <component Cclass="Device" Cgroup="Startup" Cvendor="Keil" Cversion="1.0.0" condition="MKL46Z4 CMSIS"/>
         <package name="Kinetis_KLxx_DFP" schemaVersion="1.2" url="http://www.keil.com/pack/" vendor="Keil" version="1.12.0"/>
@@ -461,7 +461,7 @@
           <targetInfo name="Dev board"/>
         </targetInfos>
       </file>
-      <file attr="config" category="source" name="Device\Source\system_MKL46Z4.c" version="0.0.0">
+      <file attr="config" category="source" name="Device\Source\system_MKL46Z4.c" version="1.0.0">
         <instance index="0">RTE\Device\MKL46Z256xxx4\system_MKL46Z4.c</instance>
         <component Cclass="Device" Cgroup="Startup" Cvendor="Keil" Cversion="1.0.0" condition="MKL46Z4 CMSIS"/>
         <package name="Kinetis_KLxx_DFP" schemaVersion="1.2" url="http://www.keil.com/pack/" vendor="Keil" version="1.12.0"/>
