@@ -4,7 +4,7 @@
  *      *** Do not modify ! ***
  *
  * Project: 'usb-mouse' 
- * Target:  'dev_board' 
+ * Target:  'Dev board' 
  */
 
 #ifndef RTE_COMPONENTS_H

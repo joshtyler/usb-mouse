@@ -1,19 +1,30 @@
+//Device header
 #include <MKL46Z4.H>
+
+//FreeRTOS libraries
 #include "FreeRTOS.h"
 #include "task.h"
 
+//User library
+#include "uart.h"
+
+
 //Initialise the Green LED on dev board
 void initLED(void);
+
+
 
 //Task to blink the green LED
 void blinkLED(void *pvParameters);
 
 int main(void)
 {
-	//Blink an LED as a heartbeat
+	//Setup debug LED and UART
 	initLED();
-	xTaskCreate(blinkLED, (const char *)"Blink LED", configMINIMAL_STACK_SIZE, (void *)NULL, tskIDLE_PRIORITY, NULL);
+	uartSetup(9600);
 	
+	//Blink an LED as a heartbeat
+	xTaskCreate(blinkLED, (const char *)"Blink LED", configMINIMAL_STACK_SIZE, (void *)NULL, tskIDLE_PRIORITY, NULL);
 	
 	//Start scheduler
 	vTaskStartScheduler();
@@ -35,6 +46,7 @@ void blinkLED(void *pvParameters)
 	while(1)
 	{
 		PTD->PTOR = (1u<<5);
+		uart_putChar('a');
 		vTaskDelay(500/portTICK_RATE_MS);
 	}
 }

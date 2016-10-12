@@ -6,3 +6,12 @@
 # Folders
 src/Listings
 src/Objects
+
+# File types
+
+#Cross-Reference file containing browse information (definitions, references for identifiers).
+#Assume we don't need
+*.crf
+
+#Can't find any documentation on this. Some kind of temporary file?
+*.0000
