@@ -389,11 +389,6 @@
               <FileType>1</FileType>
               <FilePath>.\uart.c</FilePath>
             </File>
-            <File>
-              <FileName>retarget.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\retarget.c</FilePath>
-            </File>
           </Files>
         </Group>
         <Group>

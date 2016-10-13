@@ -47,9 +47,9 @@ void blinkLED(void *pvParameters)
 {
 	while(1)
 	{
-		int i = 1;
 		PTD->PTOR = (1u<<5);
-		dbg_puts("Hello world. This is a number: %d\r\n");
+		dbg_putchar('.');
+		dbg_puts("Heartbeat\r\n");
 		vTaskDelay(500/portTICK_RATE_MS);
 	}
 }

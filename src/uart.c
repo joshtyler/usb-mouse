@@ -4,15 +4,21 @@
 // We want the UART which is routed through the SDA MCU on the FRDM-KL46Z
 // This is PTA1 (UART0_RX) and PTA2 (UART0_TX) (FRDM-KL46Z user manual p.10)
 
-#include <MKL46Z4.H>
-#include <stdlib.h>
+#include <MKL46Z4.H> //For device registers
+#include <stdlib.h> //For abs()
+#include <stdbool.h> //For boolean type
 #include "uart.h"
 
+//Include FreeRTOS type for semaphopre handlig
 #include "FreeRTOS.h"
 #include "semphr.h"
 
 //Sempahore to only allow one person to use the UART at once
 static xSemaphoreHandle uartGatekeeper =0;
+
+//Flag to signal if internal function has gatekeeper
+//This means that uart_puts can take the gatekeeper, and uart_putchar will still write
+static bool internalHasGatekeeper = false;
 
 //Setup UART 0
 //Argument is baud rate
@@ -65,26 +71,41 @@ void uart_setup(int baud)
 //Send a character via the UART
 void uart_putchar(char c)
 {
-	if(xSemaphoreTake(uartGatekeeper, portMAX_DELAY))
+	//Take and return the gatekeeper if not called internally
+	if(!internalHasGatekeeper)
 	{
-		//Wait until there is room in the transmit buffer
-		while(!(UART0->S1 & UART0_S1_TDRE_MASK));
-		
-		//Put data into UART data register for transmission
-		UART0->D = (uint8_t) c;
-		
+		//No need to wrap this in an if, as we will wait forever to get the gatekeeper
+		xSemaphoreTake(uartGatekeeper, portMAX_DELAY);
+	}
+	
+	//Wait until there is room in the transmit buffer
+	while(!(UART0->S1 & UART0_S1_TDRE_MASK));
+	
+	//Put data into UART data register for transmission
+	UART0->D = (uint8_t) c;
+	
+	if(!internalHasGatekeeper)
+	{
 		xSemaphoreGive(uartGatekeeper);
 	}
+
 }
 
 //Send a string via the UART
 void uart_puts(const char *str)
 {
-	while(*str)
+	if(xSemaphoreTake(uartGatekeeper, portMAX_DELAY))
 	{
-		uart_putchar(*str);
-		
-		str++;
+		//Signal that an internal function has the gatekeeper, sot that uart_putchar won't block us
+		internalHasGatekeeper = true;
+		while(*str)
+		{
+			uart_putchar(*str);
+			
+			str++;
+		}
+		internalHasGatekeeper = false;
+		xSemaphoreGive(uartGatekeeper);
 	}
 }
 

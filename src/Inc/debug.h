@@ -5,18 +5,14 @@
 #define DEBUG_H
 
 #include "uart.h"
-#include <stdio.h>
 
+//Conditionally include string functionality if debug is enabled
 #ifdef NDEBUG
-
-	#define dbg_prinf(...)
 	#define dbg_puts(str)
-
+	#define dbg_putchar(c)
 #else
-	
-	#define dbg_printf(...) printf(...) //retarget.c redefined fputc, so we can use Keil's printf
 	#define dbg_puts(str) uart_puts(str)
-
+	#define dbg_putchar(c) uart_putchar(c)
 #endif
 
 
