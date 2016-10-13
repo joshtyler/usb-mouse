@@ -5,13 +5,13 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
-//User library
+//User librarys
 #include "uart.h"
+#include "debug.h"
 
 
 //Initialise the Green LED on dev board
 void initLED(void);
-
 
 
 //Task to blink the green LED
@@ -19,9 +19,11 @@ void blinkLED(void *pvParameters);
 
 int main(void)
 {
+	SystemInit(); //Initialise system clocks etc.
+	
 	//Setup debug LED and UART
 	initLED();
-	uartSetup(9600);
+	uart_setup(115200);
 	
 	//Blink an LED as a heartbeat
 	xTaskCreate(blinkLED, (const char *)"Blink LED", configMINIMAL_STACK_SIZE, (void *)NULL, tskIDLE_PRIORITY, NULL);
@@ -45,8 +47,9 @@ void blinkLED(void *pvParameters)
 {
 	while(1)
 	{
+		int i = 1;
 		PTD->PTOR = (1u<<5);
-		uart_puts("Hello world\r\n");
+		dbg_puts("Hello world. This is a number: %d\r\n");
 		vTaskDelay(500/portTICK_RATE_MS);
 	}
 }
