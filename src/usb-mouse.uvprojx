@@ -335,7 +335,7 @@
               <MiscControls></MiscControls>
               <Define></Define>
               <Undefine></Undefine>
-              <IncludePath>.\Inc;.\FreeRTOS\Inc;.\Clock\Inc</IncludePath>
+              <IncludePath>.\Inc;.\FreeRTOS\Inc;.\Clock\Inc;.\USB\Inc</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -443,6 +443,31 @@
               <FileName>fsl_common.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\Clock\fsl_common.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>USB</GroupName>
+          <Files>
+            <File>
+              <FileName>usb_desc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\USB\usb_desc.c</FilePath>
+            </File>
+            <File>
+              <FileName>usb_dev.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\USB\usb_dev.c</FilePath>
+            </File>
+            <File>
+              <FileName>usb_mem.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\USB\usb_mem.c</FilePath>
+            </File>
+            <File>
+              <FileName>usb_mouse.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\USB\usb_mouse.c</FilePath>
             </File>
           </Files>
         </Group>

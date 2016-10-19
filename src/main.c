@@ -9,11 +9,12 @@
 #include "uart.h" //UART Setup
 #include "debug.h" //Debug print functions
 #include "clock_config.h" //Clock configuration
+#include "usb_dev.h" //USB Initialisation
+#include "usb_mouse.h" //Mouse user interface
 
 
 //Initialise the Green LED on dev board
 void initLED(void);
-
 
 //Task to blink the green LED
 void blinkLED(void *pvParameters);
@@ -21,6 +22,11 @@ void blinkLED(void *pvParameters);
 //Test message processes
 void msgProc1(void *p);
 void msgProc2(void *p);
+
+void USB0_IRQHandler(void)
+{
+	usb_isr();
+}
 
 int main(void)
 {
@@ -31,6 +37,7 @@ int main(void)
 	//Setup debug LED and UART
 	initLED();
 	uart_setup(115200);
+	usb_init();
 	
 	//Blink an LED as a heartbeat
 	xTaskCreate(blinkLED, (const char *)"Blink LED", configMINIMAL_STACK_SIZE, (void *)NULL, tskIDLE_PRIORITY, NULL);
@@ -61,6 +68,7 @@ void blinkLED(void *pvParameters)
 		PTD->PTOR = (1u<<5);
 		dbg_putchar('.');
 		dbg_puts("Heartbeat\r\n");
+		usb_mouse_move(0,-50,0,0);
 		vTaskDelay(500/portTICK_RATE_MS);
 	}
 }
