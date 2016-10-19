@@ -335,7 +335,7 @@
               <MiscControls></MiscControls>
               <Define></Define>
               <Undefine></Undefine>
-              <IncludePath>.\Inc;.\FreeRTOS\Inc;.\Clock\Inc;.\USB\Inc</IncludePath>
+              <IncludePath>.\Inc;.\FreeRTOS\Inc;.\Clock\Inc;.\USB\Inc;.\UART\Inc</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -383,11 +383,6 @@
               <FileName>main.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\main.c</FilePath>
-            </File>
-            <File>
-              <FileName>uart.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\uart.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -468,6 +463,16 @@
               <FileName>usb_mouse.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\USB\usb_mouse.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>UART</GroupName>
+          <Files>
+            <File>
+              <FileName>uart.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\UART\uart.c</FilePath>
             </File>
           </Files>
         </Group>

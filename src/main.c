@@ -63,7 +63,7 @@ void blinkLED(void *pvParameters)
 		PTD->PTOR = (1u<<5);
 		dbg_putchar('.');
 		dbg_puts("Heartbeat\r\n");
-		usb_mouse_move(0,-50,0,0);
+		usb_mouse_send_data(0,-50,0,0,0);
 		vTaskDelay(500/portTICK_RATE_MS);
 	}
 }
