@@ -22,7 +22,7 @@ static bool internalHasGatekeeper = false;
 
 //Setup UART 0
 //Argument is baud rate
-void uart_setup(int baud)
+void uart_init(int baud)
 {
 	uint16_t sbr; //Baud rate module divisor
 	

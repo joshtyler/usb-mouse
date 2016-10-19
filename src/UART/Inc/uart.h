@@ -6,7 +6,7 @@
 #define UART_H
 
 //Setup UART 0
-void uart_setup(int baud);
+void uart_init(int baud);
 
 //Send char from UART 0
 void uart_putchar(char c);

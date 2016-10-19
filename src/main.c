@@ -4,8 +4,10 @@
 //FreeRTOS libraries
 #include "FreeRTOS.h"
 #include "task.h"
+#include "queue.h"
 
 //User libraries
+#include "heartbeat.h" //Heartbeat task
 #include "uart.h" //UART Setup
 #include "debug.h" //Debug print functions
 #include "clock_config.h" //Clock configuration
@@ -13,15 +15,20 @@
 #include "usb_mouse.h" //Mouse user interface
 
 
-//Initialise the Green LED on dev board
-void initLED(void);
+void gather(void *pvParameters);
+void send(void *pvParameters);
 
-//Task to blink the green LED
-void blinkLED(void *pvParameters);
+//Queue to send mouse data from gather task to send task
+xQueueHandle mouseDataQueue = NULL;
 
-//Test message processes
-void msgProc1(void *p);
-void msgProc2(void *p);
+//Datatype to be send via queue
+typedef struct
+{
+	int8_t x;
+	int8_t y;
+	int8_t scroll;
+	uint8_t btn;
+} mouseData_t;
 
 int main(void)
 {
@@ -29,59 +36,50 @@ int main(void)
 	BOARD_BootClockRUN();
 	SystemCoreClockUpdate();
 	
-	//Setup debug LED and UART
-	initLED();
-	uart_setup(115200);
+	//Setup heartbeat LED, UART, USB
+	led_init();
+	uart_init(115200);
 	usb_init();
 	
-	//Blink an LED as a heartbeat
-	xTaskCreate(blinkLED, (const char *)"Blink LED", configMINIMAL_STACK_SIZE, (void *)NULL, tskIDLE_PRIORITY, NULL);
+	//Queue to transfer data from gather to send
+	//Note queue only holds 1 item to ensure that data is up to date
+	mouseDataQueue = xQueueCreate(1, sizeof(mouseData_t));
 	
-	//Test message tasks
-	xTaskCreate(msgProc1, (const char *)"Msg 1", configMINIMAL_STACK_SIZE, (void *)NULL, 1, NULL);
-	xTaskCreate(msgProc2, (const char *)"Msg 2", configMINIMAL_STACK_SIZE, (void *)NULL, 2, NULL);
+	//Heartbeat task
+	//Blink LED and send UART message *at lowest priority* to indicate that we're still alive
+	xTaskCreate(heartbeat, (const char *)"Heartbeat", configMINIMAL_STACK_SIZE, (void *)NULL, tskIDLE_PRIORITY, NULL);
 	
-	//Start scheduler
+	//Gather task
+	//Get sensor data and send to send task
+	xTaskCreate(gather, (const char *)"Gather", configMINIMAL_STACK_SIZE, (void *)NULL, configMAX_PRIORITIES-1, NULL);
+	
+	//Send task
+	//Send mouse data via USB
+	xTaskCreate(send, (const char *)"Send", configMINIMAL_STACK_SIZE, (void *)NULL, configMAX_PRIORITIES, NULL);
+
+	
 	vTaskStartScheduler();
 
 	
 	return 0;
 }
 
-void initLED(void)
+void gather(void *pvParameters)
 {
-	// Inspired from example at https://eewiki.net/display/microcontroller/Getting+started+with+Freescale%27s+Freedom+KL46Z+Development+Board
-	SIM->SCGC5 |= SIM_SCGC5_PORTD_MASK; //Enable clock to PortD
-	PORTD->PCR[5] = PORT_PCR_MUX(1u); //This sets the Mux control of PTD5 to 001, or GPIO
-	PTD->PDDR |= (1u<<5); //Set PTD5 as output
-}
-
-void blinkLED(void *pvParameters)
-{
+	mouseData_t data = {0,0,0,0};
 	while(1)
 	{
-		PTD->PTOR = (1u<<5);
-		dbg_putchar('.');
-		dbg_puts("Heartbeat\r\n");
-		usb_mouse_send_data(0,-50,0,0,0);
-		vTaskDelay(500/portTICK_RATE_MS);
+		xQueueSend(mouseDataQueue, &data, portMAX_DELAY); //Send data to queue, wait forever
 	}
 }
 
-void msgProc1(void *p)
+void send(void *pvParameters)
 {
+	mouseData_t data;
 	while(1)
 	{
-		dbg_puts("Message 1\r\n");
-		vTaskDelay(230/portTICK_RATE_MS);
+		xQueueReceive(mouseDataQueue, &data, portMAX_DELAY); //Send data to queue, wait forever
+		usb_mouse_send_data(data.x, data.y, data.scroll, 0, data.btn);
 	}
 }
 
-void msgProc2(void *p)
-{
-	while(1)
-	{
-		dbg_puts("Important message 2\r\n");
-		vTaskDelay(110/portTICK_RATE_MS);
-	}
-}
