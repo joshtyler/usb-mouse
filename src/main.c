@@ -13,6 +13,7 @@
 #include "clock_config.h" //Clock configuration
 #include "usb_dev.h" //USB Initialisation
 #include "usb_mouse.h" //Mouse user interface
+#include "gpio.h" //To read buttons
 
 
 void gather(void *pvParameters);
@@ -36,8 +37,8 @@ int main(void)
 	BOARD_BootClockRUN();
 	SystemCoreClockUpdate();
 	
-	//Setup heartbeat LED, UART, USB
-	led_init();
+	//Setup peripherals
+	gpio_init();
 	uart_init(115200);
 	usb_init();
 	
@@ -69,6 +70,7 @@ void gather(void *pvParameters)
 	mouseData_t data = {0,0,0,0};
 	while(1)
 	{
+		data.btn = usb_mouse_buttons(readSW1(), 0, readSW2(), 0, 0);
 		xQueueSend(mouseDataQueue, &data, portMAX_DELAY); //Send data to queue, wait forever
 	}
 }
