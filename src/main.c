@@ -5,9 +5,10 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
-//User librarys
-#include "uart.h"
-#include "debug.h"
+//User libraries
+#include "uart.h" //UART Setup
+#include "debug.h" //Debug print functions
+#include "clock_config.h" //Clock configuration
 
 
 //Initialise the Green LED on dev board
@@ -17,9 +18,15 @@ void initLED(void);
 //Task to blink the green LED
 void blinkLED(void *pvParameters);
 
+//Test message processes
+void msgProc1(void *p);
+void msgProc2(void *p);
+
 int main(void)
 {
-	SystemInit(); //Initialise system clocks etc.
+	//Setup clocking
+	BOARD_BootClockRUN();
+	SystemCoreClockUpdate();
 	
 	//Setup debug LED and UART
 	initLED();
@@ -27,6 +34,10 @@ int main(void)
 	
 	//Blink an LED as a heartbeat
 	xTaskCreate(blinkLED, (const char *)"Blink LED", configMINIMAL_STACK_SIZE, (void *)NULL, tskIDLE_PRIORITY, NULL);
+	
+	//Test message tasks
+	xTaskCreate(msgProc1, (const char *)"Msg 1", configMINIMAL_STACK_SIZE, (void *)NULL, 1, NULL);
+	xTaskCreate(msgProc2, (const char *)"Msg 2", configMINIMAL_STACK_SIZE, (void *)NULL, 2, NULL);
 	
 	//Start scheduler
 	vTaskStartScheduler();
@@ -51,5 +62,23 @@ void blinkLED(void *pvParameters)
 		dbg_putchar('.');
 		dbg_puts("Heartbeat\r\n");
 		vTaskDelay(500/portTICK_RATE_MS);
+	}
+}
+
+void msgProc1(void *p)
+{
+	while(1)
+	{
+		dbg_puts("Message 1\r\n");
+		vTaskDelay(230/portTICK_RATE_MS);
+	}
+}
+
+void msgProc2(void *p)
+{
+	while(1)
+	{
+		dbg_puts("Important message 2\r\n");
+		vTaskDelay(110/portTICK_RATE_MS);
 	}
 }

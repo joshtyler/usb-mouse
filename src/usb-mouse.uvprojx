@@ -322,7 +322,7 @@
             <wLevel>2</wLevel>
             <uThumb>0</uThumb>
             <uSurpInc>0</uSurpInc>
-            <uC99>0</uC99>
+            <uC99>1</uC99>
             <useXO>0</useXO>
             <v6Lang>1</v6Lang>
             <v6LangP>1</v6LangP>
@@ -335,7 +335,7 @@
               <MiscControls></MiscControls>
               <Define></Define>
               <Undefine></Undefine>
-              <IncludePath>.\Inc;.\FreeRTOS\Inc</IncludePath>
+              <IncludePath>.\Inc;.\FreeRTOS\Inc;.\Clock\Inc</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -423,6 +423,26 @@
               <FileName>timers.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\FreeRTOS\timers.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>Clock</GroupName>
+          <Files>
+            <File>
+              <FileName>clock_config.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Clock\clock_config.c</FilePath>
+            </File>
+            <File>
+              <FileName>fsl_clock.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Clock\fsl_clock.c</FilePath>
+            </File>
+            <File>
+              <FileName>fsl_common.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Clock\fsl_common.c</FilePath>
             </File>
           </Files>
         </Group>
