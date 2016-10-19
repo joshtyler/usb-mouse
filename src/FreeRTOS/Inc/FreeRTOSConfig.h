@@ -117,6 +117,13 @@ extern uint32_t SystemCoreClock;
 #define configTIMER_QUEUE_LENGTH		5
 #define configTIMER_TASK_STACK_DEPTH	( 80 )
 
+/* Interrupt nesting behaviour configuration */
+//Note. On Cortex processors, 0 is the highest priority. See http://www.freertos.org/a00110.html#kernel_priority
+#define configKERNEL_INTERRUPT_PRIORITY 4 //This is the priority level the kernel will interrupt with
+#define configMAX_API_CALL_INTERRUPT_PRIORITY 3 //This is the max priority level an interrupt can have, and still be API safe
+//Set configMAX_API_CALL_INTERRUPT_PRIORITY higher than configKERNEL_INTERRUPT_PRIORITY to have a full interrupt nesting model
+
+
 /* Set the following definitions to 1 to include the API function, or zero
 to exclude the API function. */
 #define INCLUDE_vTaskPrioritySet		1

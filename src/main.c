@@ -23,11 +23,6 @@ void blinkLED(void *pvParameters);
 void msgProc1(void *p);
 void msgProc2(void *p);
 
-void USB0_IRQHandler(void)
-{
-	usb_isr();
-}
-
 int main(void)
 {
 	//Setup clocking

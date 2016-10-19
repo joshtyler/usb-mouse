@@ -30,18 +30,16 @@
 
 #include "usb_dev.h"
 #include "usb_mouse.h"
-//Dummy define of yield (for now)
-#define yield(...)
-#include <string.h> // for memcpy()
+
+#include "FreeRTOS.h"
+#include "task.h"
 
 #ifdef MOUSE_INTERFACE // defined by usb_dev.h -> usb_desc.h
 
-// which buttons are currently pressed
-uint8_t usb_mouse_buttons_state=0;
-
 // Set the mouse buttons.  To create a "click", 2 calls are needed,
 // one to push the button down and the second to release it
-int usb_mouse_buttons(uint8_t left, uint8_t middle, uint8_t right, uint8_t back, uint8_t forward)
+// Note API has been changed here to make this function return the mask instead of sending message directly
+uint8_t usb_mouse_buttons(uint8_t left, uint8_t middle, uint8_t right, uint8_t back, uint8_t forward)
 {
         uint8_t mask=0;
 
@@ -50,8 +48,7 @@ int usb_mouse_buttons(uint8_t left, uint8_t middle, uint8_t right, uint8_t back,
         if (right) mask   |= 2;
         if (back) mask    |= 8;
         if (forward) mask |= 16;
-        usb_mouse_buttons_state = mask;
-        return usb_mouse_move(0, 0, 0, 0);
+        return mask;
 }
 
 
@@ -67,8 +64,9 @@ static uint8_t transmit_previous_timeout=0;
 #define TX_TIMEOUT (TX_TIMEOUT_MSEC * 428)
 
 
-// Move the mouse.  x, y and wheel are -127 to 127.  Use 0 for no movement.
-int usb_mouse_move(int8_t x, int8_t y, int8_t wheel, int8_t horiz)
+// Send mouse data.  x, y and wheel are -127 to 127.  Use 0 for no movement.
+// usb_mouse_buttons_state is the mask returned by usb_mouse_buttons
+int usb_mouse_send_data(int8_t x, int8_t y, int8_t wheel, int8_t horiz, uint8_t usb_mouse_buttons_state)
 {
         uint32_t wait_count=0;
         usb_packet_t *tx_packet;
@@ -92,7 +90,8 @@ int usb_mouse_move(int8_t x, int8_t y, int8_t wheel, int8_t horiz)
                         transmit_previous_timeout = 1;
                         return -1;
                 }
-                yield();
+								//Delay instead of yield as this will be fairly high priority, and we want to give lower priority tasks a chance
+                vTaskDelay(1/portTICK_RATE_MS);
         }
         transmit_previous_timeout = 0;
         *(tx_packet->buf + 0) = 1;

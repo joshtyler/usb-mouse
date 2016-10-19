@@ -42,6 +42,7 @@
 #include "kinetis.h"
 #include "usb_mem.h"
 #include <string.h> // for memset
+#include "FreeRTOSConfig.h" //For configMAX_API_CALL_INTERRUPT_PRIORITY definition
 
 #pragma anon_unions //Allow anonymous unions
 
@@ -136,7 +137,6 @@ uint8_t usb_rx_memory_needed = 0;
 
 volatile uint8_t usb_configuration = 0;
 volatile uint8_t usb_reboot_timer = 0;
-
 
 static void endpoint0_stall(void)
 {
@@ -841,6 +841,19 @@ void _reboot_Teensyduino_(void)
 }
 
 
+//Wrapper using CMSIS name
+//Ppasses to usb_isr
+void USB0_IRQHandler(void)
+{
+	// We could setup usb_isr() as a freeRTOS task with high priority
+	// Then give a semaphore here that it could wait for
+	//(Using xSemaphoreGiveFromISR (and vPortYieldFromISR to yield immediately))
+	// However the problem is that we'd have to clear the interrupt before issuing the semaphore
+	// I.e. USB0_ISTAT = 0xFF
+	// This would mess up the handling and clearing of the interrupts, so would require significant re-writing
+	// Instead, lets just call the ISR directly, since the USB_ISR is the highest priority thing in the system and nothing else is timing critical
+	usb_isr();
+}
 
 void usb_isr(void)
 {
@@ -1023,8 +1036,6 @@ void usb_isr(void)
 		goto restart;
 	}
 
-
-
 	if (status & USB_ISTAT_USBRST /* 01 */ ) {
 		//serial_print("reset\n");
 
@@ -1136,7 +1147,9 @@ void usb_init(void)
 	USB0_INTEN = USB_INTEN_USBRSTEN;
 
 	// enable interrupt in NVIC...
-	NVIC_SET_PRIORITY(IRQ_USBOTG, 3);
+	//Set the USB interrupt priority as the maximum API safe interrupt level
+	//This meas that the Kernel will not disable the USB interrupt
+	NVIC_SET_PRIORITY(IRQ_USBOTG, configMAX_API_CALL_INTERRUPT_PRIORITY);
 	NVIC_ENABLE_IRQ(IRQ_USBOTG);
 
 	// enable d+ pullup

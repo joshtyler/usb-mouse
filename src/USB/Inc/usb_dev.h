@@ -38,7 +38,8 @@
 
 void usb_init(void);
 void usb_init_serialnumber(void);
-void usb_isr(void);
+void USB0_IRQHandler(void); //Interrupt handler wrapper for CMSIS name
+void usb_isr(void); //Actual ISR
 usb_packet_t *usb_rx(uint32_t endpoint);
 uint32_t usb_tx_byte_count(uint32_t endpoint);
 uint32_t usb_tx_packet_count(uint32_t endpoint);
