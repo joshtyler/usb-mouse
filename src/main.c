@@ -44,6 +44,8 @@ int main(void)
 	usb_init();
 	lcd_init();
 	
+	lcd_setStr("USB");
+	
 	//Queue to transfer data from gather to send
 	//Note queue only holds 1 item to ensure that data is up to date
 	mouseDataQueue = xQueueCreate(1, sizeof(mouseData_t));
