@@ -2,6 +2,7 @@
 
 #include <MKL46Z4.H>
 #include <stdint.h>
+#include <stdbool.h>
 #include "lcd.h"
 #include "gpio.h"
 
@@ -237,6 +238,7 @@ void lcd_setNum(unsigned int num)
 	int i;
 	int mult = SET_NUM_MULT; //This is 10**(NUM_DIGITS-1), but better to know at compile time
 	uint8_t digit;
+	bool digitWritten = false;
 	
 	//Clamp number if out of range
 	if(num >= SET_NUM_MULT * 10)
@@ -253,10 +255,12 @@ void lcd_setNum(unsigned int num)
 		mult /= 10;
 		
 		//Display if the digit is not zero
+		//Or if there is a preceding digit
 		//Or if it's the last digit (as we want at least one zero)
-		if(digit != 0 || i == NUM_DIGITS-1)
+		if(digit != 0 || digitWritten || i == NUM_DIGITS-1)
 		{
 			lcd_setDigit(LCD_DIGIT(i), lcdNumbers[digit]);
+			digitWritten = true;
 		}
 	}
 	

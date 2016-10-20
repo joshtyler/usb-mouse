@@ -335,7 +335,7 @@
               <MiscControls></MiscControls>
               <Define></Define>
               <Undefine></Undefine>
-              <IncludePath>.\Inc;.\FreeRTOS\Inc;.\Clock\Inc;.\USB\Inc;.\UART\Inc;.\GPIO\Inc;.\LCD\Inc</IncludePath>
+              <IncludePath>.\Inc;.\FreeRTOS\Inc;.\Clock\Inc;.\USB\Inc;.\UART\Inc;.\GPIO\Inc;.\LCD\Inc;.\Touch\Inc</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -498,6 +498,16 @@
               <FileName>lcd.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\LCD\lcd.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>Touch</GroupName>
+          <Files>
+            <File>
+              <FileName>touch.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Touch\touch.c</FilePath>
             </File>
           </Files>
         </Group>

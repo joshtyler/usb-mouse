@@ -15,7 +15,7 @@
 #include "usb_mouse.h" //Mouse user interface
 #include "gpio.h" //To read buttons
 #include "lcd.h" //Drive LCD
-
+#include "touch.h" //Read touch sensor
 
 void gather(void *pvParameters);
 void send(void *pvParameters);
@@ -43,8 +43,14 @@ int main(void)
 	uart_init(115200);
 	usb_init();
 	lcd_init();
+	touch_init();
 	
-	lcd_setStr("USB");
+	while(1)
+	{
+		lcd_setNum(touch_read());
+		int i;
+		for(i=0;i<999999;i++);
+	}
 	
 	//Queue to transfer data from gather to send
 	//Note queue only holds 1 item to ensure that data is up to date
