@@ -29,7 +29,7 @@
 
 void gpio_init(void);
 
-static void init_pin(PORT_Type * port, uint8_t pin, bool output, bool pullup);
+void init_pin(PORT_Type * port, uint8_t pin, bool output, bool pullup, uint8_t alt);
 
 //Macros to perform common functions
 //LEDs

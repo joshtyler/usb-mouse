@@ -14,6 +14,7 @@
 #include "usb_dev.h" //USB Initialisation
 #include "usb_mouse.h" //Mouse user interface
 #include "gpio.h" //To read buttons
+#include "lcd.h" //Drive LCD
 
 
 void gather(void *pvParameters);
@@ -41,6 +42,7 @@ int main(void)
 	gpio_init();
 	uart_init(115200);
 	usb_init();
+	lcd_init();
 	
 	//Queue to transfer data from gather to send
 	//Note queue only holds 1 item to ensure that data is up to date

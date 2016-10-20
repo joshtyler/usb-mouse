@@ -7,17 +7,17 @@
 void gpio_init(void)
 {
 	//LEDs
-	init_pin(LED1_PORT, LED1_PIN, true, false);
-	init_pin(LED2_PORT, LED2_PIN, true, false);
+	init_pin(LED1_PORT, LED1_PIN, true, false, 1);
+	init_pin(LED2_PORT, LED2_PIN, true, false, 1);
 	
 	//Switches
 	//Enable internal pullups as there are none on PCB
-	init_pin(SW1_PORT, SW1_PIN, false, true);
-	init_pin(SW2_PORT, SW2_PIN, false, true);
+	init_pin(SW1_PORT, SW1_PIN, false, true, 1);
+	init_pin(SW2_PORT, SW2_PIN, false, true, 1);
 	
 }
 
-static void init_pin(PORT_Type * port, uint8_t pin, bool output, bool pullup)
+void init_pin(PORT_Type * port, uint8_t pin, bool output, bool pullup, uint8_t alt)
 {
 	unsigned int mask;
 	GPIO_Type *pt;
@@ -51,7 +51,7 @@ static void init_pin(PORT_Type * port, uint8_t pin, bool output, bool pullup)
 	}
 	
 	SIM->SCGC5 |= mask; //Enable clock to port
-	port->PCR[pin] = PORT_PCR_MUX(1); //Set mux control to GPIO
+	port->PCR[pin] = PORT_PCR_MUX(alt); //Set mux control
 
 	
 	//Set PDDR bit if output, or clear if input
