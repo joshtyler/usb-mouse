@@ -519,6 +519,16 @@
               <FileType>1</FileType>
               <FilePath>.\IIC\iic.c</FilePath>
             </File>
+            <File>
+              <FileName>fsl_gpio.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\IIC\fsl_gpio.c</FilePath>
+            </File>
+            <File>
+              <FileName>fsl_i2c.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\IIC\fsl_i2c.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

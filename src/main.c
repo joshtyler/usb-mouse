@@ -26,14 +26,16 @@
 void gather(void *pvParameters);
 void send(void *pvParameters);
 void touch(void *pvParameters);
+void accel(void *pvParameters);
 void vApplicationMallocFailedHook( void );
 void vApplicationStackOverflowHook( TaskHandle_t xTask, signed char *pcTaskName );
 
 //Queue to send mouse data from gather task to send task
 xQueueHandle mouseDataQueue = NULL;
 
-//Signals to request a report from each
+//Signals to request a report from each peripheral
 static xSemaphoreHandle scrollReportSignal = 0;
+static xSemaphoreHandle accelReportSignal = 0;
 
 xQueueHandle peripheralReportQueue = NULL;
 
@@ -50,7 +52,8 @@ typedef struct
 typedef struct
 {
 	enum {TOUCH, ACCEL} source;
-	int8_t payload;
+	int8_t payload1;
+	int8_t payload2;
 } peripheralData_t;
 
 int main(void)
@@ -65,7 +68,9 @@ int main(void)
 	usb_init();
 	lcd_init();
 	touch_init();
-	iic_init();
+	
+	BOARD_I2C_ReleaseBus();
+	BOARD_I2C_ConfigurePins();
 	
 	//Queue to transfer data from gather to send
 	//Note queue only holds 1 item to ensure that data is up to date
@@ -83,6 +88,10 @@ int main(void)
 	//Read touch sensor
 	xTaskCreate(touch, (const char *)"Touch", configMINIMAL_STACK_SIZE, (void *)NULL, configMAX_PRIORITIES-2, NULL);
 	
+	//Accel task
+	//Read accelerometer
+	xTaskCreate(accel, (const char *)"Accel", configMINIMAL_STACK_SIZE, (void *)NULL, configMAX_PRIORITIES-2, NULL);
+	
 	//Gather task
 	//Get sensor data and send to send task
 	xTaskCreate(gather, (const char *)"Gather", configMINIMAL_STACK_SIZE, (void *)NULL, configMAX_PRIORITIES-1, NULL);
@@ -91,31 +100,37 @@ int main(void)
 	//Send mouse data via USB
 	xTaskCreate(send, (const char *)"Send", configMINIMAL_STACK_SIZE, (void *)NULL, configMAX_PRIORITIES, NULL);
 
-	
 	vTaskStartScheduler();
 
-	
 	return 0;
 }
 
 void gather(void *pvParameters)
 {
-	//Create semaphores which request data, and take them
-	dbg_puts("Gather. Creating semaphore.\r\n");
+	//Create semaphores which request data
 	scrollReportSignal = xSemaphoreCreateBinary();
+	accelReportSignal = xSemaphoreCreateBinary();
 	
 	peripheralData_t periphData;
 	mouseData_t data = {0,0,0,0};
-	dbg_puts("Gather. About to enter main loop");
 	while(1)
 	{
-		dbg_puts("Gather. In main loop.\r\n");
 		xSemaphoreGive(scrollReportSignal);
-		dbg_puts("Gather. Given semaphore.\r\n");
-		xQueueReceive(peripheralReportQueue, &periphData, portMAX_DELAY);
-		dbg_puts("Gather. Got peripheral data.\r\n");
-		data.scroll = periphData.payload;
-		lcd_setNum(periphData.payload >= 0? periphData.payload : -periphData.payload);
+		xSemaphoreGive(accelReportSignal);
+		for(int i=0; i<2; i++)
+		{
+			xQueueReceive(peripheralReportQueue, &periphData, portMAX_DELAY);
+			if(periphData.source == TOUCH)
+			{
+				data.scroll = periphData.payload1;
+			} else if(periphData.source == ACCEL) {
+				data.x = periphData.payload1;
+				data.y = periphData.payload2;
+			} else {
+				//Invalid
+				dbg_puts("Invalid peripheral.\r\n");
+			}
+		}
 		data.btn = usb_mouse_buttons(readSW1(), 0, readSW2(), 0, 0);
 		xQueueSend(mouseDataQueue, &data, portMAX_DELAY); //Send data to queue, wait forever for it to be accepted
 		
@@ -193,11 +208,34 @@ void touch(void *pvParameters)
 				distance = INT8_MIN;
 			}
 			
-			peripheralData_t tx_data = {TOUCH, (int8_t)distance};
+			peripheralData_t tx_data = {TOUCH, (int8_t)distance,0};
 			distance = 0;
 			
 			xQueueSend(peripheralReportQueue, &tx_data, portMAX_DELAY);
 			dbg_puts("Touch. Sent to queue.\r\n");
+		}
+	}
+}
+
+void accel(void *pvParameters)
+{
+	const TickType_t delay = 2/portTICK_RATE_MS; //Measure every 2ms
+	
+	while(1)
+	{
+		int16_t x,y;
+		
+		readAccel(&x, &y);
+		
+		x*= .004;
+		y*= .003;
+		
+		peripheralData_t tx_data = {ACCEL, (int8_t)x, (int8_t)y};
+		
+		if(xSemaphoreTake(accelReportSignal, delay))
+		{
+
+			xQueueSend(peripheralReportQueue, &tx_data, portMAX_DELAY);
 		}
 	}
 }

@@ -1148,7 +1148,7 @@ void usb_init(void)
 
 	// enable interrupt in NVIC...
 	//Set the USB interrupt priority as the maximum API safe interrupt level
-	//This meas that the Kernel will not disable the USB interrupt
+	//This means that the Kernel will not disable the USB interrupt
 	NVIC_SET_PRIORITY(IRQ_USBOTG, configMAX_API_CALL_INTERRUPT_PRIORITY);
 	NVIC_ENABLE_IRQ(IRQ_USBOTG);
 

@@ -36,6 +36,7 @@
 #include <stdint.h>
 #include <string.h>
 #include "fsl_device_registers.h"
+#include "FreeRTOSConfig.h" //For configMAX_API_CALL_INTERRUPT_PRIORITY definition
 
 /*!
  * @addtogroup ksdk_common
@@ -184,6 +185,8 @@ static __inline void EnableIRQ(IRQn_Type interrupt)
     if (interrupt < FSL_FEATURE_INTMUX_IRQ_START_INDEX)
 #endif
     {
+				//This means that the Kernel will not disable the USB interrupt
+				NVIC_SetPriority(interrupt, configMAX_API_CALL_INTERRUPT_PRIORITY);
         NVIC_EnableIRQ(interrupt);
     }
 }
