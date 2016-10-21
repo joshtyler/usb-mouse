@@ -22,6 +22,7 @@
 #include "lcd.h" //Drive LCD
 #include "touch.h" //Read touch sensor
 #include "iic.h" //Read accelerometer
+#include "filter.h"
 
 #define STACK_SIZE		( ( unsigned short ) 128 )
 
@@ -160,33 +161,50 @@ void send(void *pvParameters)
 //Keep a record of distance scrolled since last report
 void touch(void *pvParameters)
 {
-	const uint16_t touchThreshold = 100; //This is emperically a good minimum value for te user touching the strip
-	const uint16_t maxDist = 75; //When we remove our finger, we will get a sharp transition. Ignore this!
+	const uint16_t minTouchThreshold = 150; //This is emperically a good minimum value for the user touching the strip
+	const uint16_t maxTouchThreshold = 1500; //This is emperically a good maximum value for the user touching the strip
+	const uint16_t maxDist = 50; //When we remove our finger, we will get a sharp transition. Ignore this!
 	
 	//The strip tends to produce values in the range 100-1000. %8 scales this nicely into ~128 for a full swipe. This is the full scale of 
-	const uint8_t scalingFactor = 0x8; 
+	const uint8_t scalingFactor = 16;
+	
+	//Minimum number of touches before adding to diff
+	//This stops touches being counted as movement
+	const uint8_t minTouches = 100;
+	uint8_t noTouches =0;
 	
 	const TickType_t delay = 2/portTICK_RATE_MS; //Measure every 2ms
 	
 	struct
 	{
 		bool touched; //True if the button was pressed at the last measurement
-		uint16_t val; //Last measurement
-	} meas = {false, 0}, prevMeas = {false, 0};
-	
+		filterHandle_t filter; //Filter to filter and hold
+	} meas = {false, { {0}, 0, 0}}, prevMeas = {false, { {0}, 0, 0}};
+
 	int32_t distance;
 	
 	while(1)
 	{
 		//Get measurement
-		meas.val = touch_read();
+		uint16_t val = touch_read();
 		
 		//Check if touched
-		meas.touched = (meas.val > touchThreshold? true: false);
+		meas.touched = (val > minTouchThreshold && val < maxTouchThreshold ? true: false);
 		
-		if(prevMeas.touched)
+		if(!meas.touched)
 		{
-			int32_t diff = ( (int32_t)meas.val - (int32_t)prevMeas.val);
+			val =0;
+			noTouches =0;
+		} else if(noTouches < minTouches) {
+			noTouches++;
+		}
+		
+		//Filter values
+		movingAverageAddSample(&meas.filter, val);
+		
+		if(noTouches >= minTouches)
+		{
+			int32_t diff = ( (int32_t)meas.filter.curVal - (int32_t)prevMeas.filter.curVal);
 			//Add up differences
 			if(diff < maxDist && -diff < maxDist )
 			{
@@ -246,22 +264,24 @@ void accel(void *pvParameters)
 
 void lcd(void *pvParameters)
 {
-	const char* strings[] = {"USB", "Mouse", "Uni", "Soton"};
-	const TickType_t delay = 1500/portTICK_RATE_MS; //Update every 1.5 seconds
+	const char* strings[] = {"USB Mouse", "University of Southampton","Real-Time Computing and Embedded Systems","2016"};
+	const TickType_t wordDelay = 1500/portTICK_RATE_MS;
+	const TickType_t scrollDelay = 500/portTICK_RATE_MS;
 	const unsigned int numStrings = sizeof(strings)/sizeof(strings[1]);
 		
 	while(1)
 	{
 		for(int i=0; i< numStrings; i++)
 		{
-			for(int strPos=0; ; strPos+=4)
+			for(int strPos=0; ; strPos++)
 			{
-				vTaskDelay(delay);
 				if(lcd_setStr( (const char *) (strings[i] + strPos) ))
 				{
 					break;
 				}
+				vTaskDelay(scrollDelay);
 			}
+			vTaskDelay(wordDelay);
 		}
 	}
 }

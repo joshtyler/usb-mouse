@@ -206,7 +206,7 @@ uint8_t lcd_setStr(const char *str)
 		} else if(c >= 'A' && c <= 'Z') { //If upper case
 			dispByte = lcdLetters[c - 'A'];
 		} else if(c >= '0' && c <= '9') { //If number
-			dispByte = lcdLetters[c - '0'];
+			dispByte = lcdNumbers[c - '0'];
 		} else if(c == ' ') { //Special case for space
 			dispByte = lcdSymbols[LCD_SYM_SPACE];
 		} else if(c == '-') { //Special case for dash
@@ -220,7 +220,7 @@ uint8_t lcd_setStr(const char *str)
 	
 	//Check if the next character is null termination
 	//I.e. the entire string is displayed
-	if(c == '\0')
+	if(str[i] == '\0')
 	{
 		return 1;
 	}

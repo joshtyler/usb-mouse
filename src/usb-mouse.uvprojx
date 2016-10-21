@@ -335,7 +335,7 @@
               <MiscControls></MiscControls>
               <Define></Define>
               <Undefine></Undefine>
-              <IncludePath>.\Inc;.\FreeRTOS\Inc;.\Clock\Inc;.\USB\Inc;.\UART\Inc;.\GPIO\Inc;.\LCD\Inc;.\Touch\Inc;.\IIC\Inc</IncludePath>
+              <IncludePath>.\Inc;.\FreeRTOS\Inc;.\Clock\Inc;.\USB\Inc;.\UART\Inc;.\GPIO\Inc;.\LCD\Inc;.\Touch\Inc;.\IIC\Inc;.\Filter\Inc</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -528,6 +528,16 @@
               <FileName>fsl_i2c.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\IIC\fsl_i2c.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>Filter</GroupName>
+          <Files>
+            <File>
+              <FileName>filter.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Filter\filter.c</FilePath>
             </File>
           </Files>
         </Group>
