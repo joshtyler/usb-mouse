@@ -183,7 +183,7 @@ void lcd_setDigit(uint8_t digit, uint8_t data)
 //Display a string on the LCD
 //Return 1 if the entire string was displayed
 //Return 0 if not
-uint8_t lcd_setStr(char *str)
+uint8_t lcd_setStr(const char *str)
 {
 	lcd_clear(); //Clear LCD
 	

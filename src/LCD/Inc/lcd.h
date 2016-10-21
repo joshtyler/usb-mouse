@@ -21,7 +21,7 @@
 
 void lcd_init(void);
 void lcd_setDigit(uint8_t digit, uint8_t data);
-uint8_t lcd_setStr(char *str);
+uint8_t lcd_setStr(const char *str);
 void lcd_setNum(unsigned int num);
 void lcd_clear(void);
 

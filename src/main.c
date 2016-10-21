@@ -23,12 +23,15 @@
 #include "touch.h" //Read touch sensor
 #include "iic.h" //Read accelerometer
 
+#define STACK_SIZE		( ( unsigned short ) 128 )
+
 void gather(void *pvParameters);
 void send(void *pvParameters);
 void touch(void *pvParameters);
 void accel(void *pvParameters);
 void vApplicationMallocFailedHook( void );
 void vApplicationStackOverflowHook( TaskHandle_t xTask, signed char *pcTaskName );
+void lcd(void *pvParameters);
 
 //Queue to send mouse data from gather task to send task
 xQueueHandle mouseDataQueue = NULL;
@@ -82,23 +85,27 @@ int main(void)
 
 	//Heartbeat task
 	//Blink LED and send UART message *at lowest priority* to indicate that we're still alive
-	xTaskCreate(heartbeat, (const char *)"Heartbeat", configMINIMAL_STACK_SIZE, (void *)NULL, tskIDLE_PRIORITY, NULL);
+	xTaskCreate(heartbeat, (const char *)"Heartbeat", STACK_SIZE, (void *)NULL, tskIDLE_PRIORITY, NULL);
+	
+	//LCD task
+	//Display strings on LCD
+	xTaskCreate(lcd, (const char *)"LCD", STACK_SIZE, (void *)NULL, tskIDLE_PRIORITY, NULL);
 	
 	//Touch task
 	//Read touch sensor
-	xTaskCreate(touch, (const char *)"Touch", configMINIMAL_STACK_SIZE, (void *)NULL, configMAX_PRIORITIES-2, NULL);
+	xTaskCreate(touch, (const char *)"Touch", STACK_SIZE, (void *)NULL, configMAX_PRIORITIES-2, NULL);
 	
 	//Accel task
 	//Read accelerometer
-	xTaskCreate(accel, (const char *)"Accel", configMINIMAL_STACK_SIZE, (void *)NULL, configMAX_PRIORITIES-2, NULL);
+	xTaskCreate(accel, (const char *)"Accel", STACK_SIZE, (void *)NULL, configMAX_PRIORITIES-2, NULL);
 	
 	//Gather task
 	//Get sensor data and send to send task
-	xTaskCreate(gather, (const char *)"Gather", configMINIMAL_STACK_SIZE, (void *)NULL, configMAX_PRIORITIES-1, NULL);
+	xTaskCreate(gather, (const char *)"Gather", STACK_SIZE, (void *)NULL, configMAX_PRIORITIES-1, NULL);
 	
 	//Send task
 	//Send mouse data via USB
-	xTaskCreate(send, (const char *)"Send", configMINIMAL_STACK_SIZE, (void *)NULL, configMAX_PRIORITIES, NULL);
+	xTaskCreate(send, (const char *)"Send", STACK_SIZE, (void *)NULL, configMAX_PRIORITIES, NULL);
 
 	vTaskStartScheduler();
 
@@ -171,7 +178,6 @@ void touch(void *pvParameters)
 	
 	while(1)
 	{
-//		dbg_puts("Touch. In main loop.\r\n");
 		//Get measurement
 		meas.val = touch_read();
 		
@@ -194,7 +200,6 @@ void touch(void *pvParameters)
 		//If we're not asked to, go back around the loop
 		if(xSemaphoreTake(scrollReportSignal, delay))
 		{
-			dbg_puts("Touch. Taken Semaphore.\r\n");
 			prevMeas.touched = false;
 			
 			distance = distance/scalingFactor;
@@ -212,7 +217,6 @@ void touch(void *pvParameters)
 			distance = 0;
 			
 			xQueueSend(peripheralReportQueue, &tx_data, portMAX_DELAY);
-			dbg_puts("Touch. Sent to queue.\r\n");
 		}
 	}
 }
@@ -240,14 +244,38 @@ void accel(void *pvParameters)
 	}
 }
 
+void lcd(void *pvParameters)
+{
+	const char* strings[] = {"USB", "Mouse", "Uni", "Soton"};
+	const TickType_t delay = 1500/portTICK_RATE_MS; //Update every 1.5 seconds
+	const unsigned int numStrings = sizeof(strings)/sizeof(strings[1]);
+		
+	while(1)
+	{
+		for(int i=0; i< numStrings; i++)
+		{
+			for(int strPos=0; ; strPos+=4)
+			{
+				vTaskDelay(delay);
+				if(lcd_setStr( (const char *) (strings[i] + strPos) ))
+				{
+					break;
+				}
+			}
+		}
+	}
+}
+
 void vApplicationMallocFailedHook( void )
 {
-	
+	dbg_puts("Malloc failed\r\n");
+	while(1);
 }
 
 
 void vApplicationStackOverflowHook( TaskHandle_t xTask, signed char *pcTaskName )
 {
-	
+	dbg_puts("Stack overflow\r\n");
+	while(1);
 }
 
