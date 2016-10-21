@@ -21,6 +21,7 @@
 #include "gpio.h" //To read buttons
 #include "lcd.h" //Drive LCD
 #include "touch.h" //Read touch sensor
+#include "iic.h" //Read accelerometer
 
 void gather(void *pvParameters);
 void send(void *pvParameters);
@@ -64,6 +65,7 @@ int main(void)
 	usb_init();
 	lcd_init();
 	touch_init();
+	iic_init();
 	
 	//Queue to transfer data from gather to send
 	//Note queue only holds 1 item to ensure that data is up to date
