@@ -1,3 +1,7 @@
+//Copyright (c) 2016 Steven Yan and Joshua Lewis Tyler
+//Licensed under the MIT license
+//See LICENSE.txt
+
 // Basic polling driver for Freescale KL46 family microcontroller
 // This driver is TX only for now
 

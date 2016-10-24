@@ -1,3 +1,7 @@
+//Copyright (c) 2016 Steven Yan and Joshua Lewis Tyler
+//Licensed under the MIT license
+//See LICENSE.txt
+
 //File to translate relevant defines from "Teeeny Style" to "CMSIS Style"
 //Note some of these need to be undefined due to an incompatible define in <MKL46Z4.H>
 

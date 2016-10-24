@@ -1,3 +1,7 @@
+//Copyright (c) 2016 Steven Yan and Joshua Lewis Tyler
+//Licensed under the MIT license
+//See LICENSE.txt
+
 //Functions to allow debug data to be output over UART
 //Only compile the functions in if NDEBUG is not defined
 

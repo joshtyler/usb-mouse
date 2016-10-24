@@ -1,3 +1,7 @@
+//Copyright (c) 2016 Steven Yan and Joshua Lewis Tyler
+//Licensed under the MIT license
+//See LICENSE.txt
+
 //Routines to use the buttons and LEDs on the KL46Z dev board
 
 #include <stdbool.h>

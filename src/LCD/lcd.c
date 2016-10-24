@@ -1,4 +1,6 @@
-
+//Copyright (c) 2016 Steven Yan and Joshua Lewis Tyler
+//Licensed under the MIT license
+//See LICENSE.txt
 
 #include <MKL46Z4.H>
 #include <stdint.h>

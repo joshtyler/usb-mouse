@@ -1,3 +1,7 @@
+//Copyright (c) 2016 Steven Yan and Joshua Lewis Tyler
+//Licensed under the MIT license
+//See LICENSE.txt
+
 //Device header
 #include <MKL46Z4.H>
 
@@ -249,8 +253,9 @@ void accel(void *pvParameters)
 		
 		readAccel(&x, &y);
 		
-		x*= .004;
-		y*= .003;
+		//Scale data
+		x >>= 8;
+		y >>= 8; 
 		
 		peripheralData_t tx_data = {ACCEL, (int8_t)x, (int8_t)y};
 		
