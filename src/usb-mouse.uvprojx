@@ -385,9 +385,9 @@
               <FilePath>.\main.c</FilePath>
             </File>
             <File>
-              <FileName>heartbeat.c</FileName>
+              <FileName>rtos_tasks.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\heartbeat.c</FilePath>
+              <FilePath>.\rtos_tasks.c</FilePath>
             </File>
           </Files>
         </Group>
